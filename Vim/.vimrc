@@ -23,10 +23,6 @@ Plugin 'docker/docker' , {'rtp': '/contrib/syntax/vim/'}
 
 call vundle#end()
 
-call plug#begin('~/.vim/plugged')
-Plug 'fatih/vim-go'
-call plug#end()
-
 filetype plugin indent on
 
 let g:ycm_python_binary_path = 'python'
