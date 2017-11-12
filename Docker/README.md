@@ -7,5 +7,5 @@ The .Dockerfunc file is written in bash and is to serve for shortcuts while usin
 
 Use dfunc to list the available commands from .Dockerfunc
 
-#Refer:
+# Refer:
 https://github.com/jessfraz/dotfiles/blob/master/.dockerfunc
