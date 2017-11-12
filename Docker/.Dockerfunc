@@ -1,0 +1,132 @@
+#!/bin/bash
+
+MY_CONTAINERS=(NAMES)
+
+#HELPER FUNCTIONS:
+
+containsElement () {
+  #For checking if element exists in an array
+  local e match="$1"
+  shift
+  for e; do [[ "$e" == "$match" ]] && return 0; done
+  return 1
+}
+
+#COLORS:
+#Black       0;30     Dark Gray     1;30
+#Blue        0;34     Light Blue    1;34
+#Green       0;32     Light Green   1;32
+#Cyan        0;36     Light Cyan    1;36
+#Red         0;31     Light Red     1;31
+#Purple      0;35     Light Purple  1;35
+#Brown       0;33     Yellow        1;33
+#Light Gray  0;37     White         1;37
+#NO COLOR \033[0m
+
+# \033[0;36m dfunc line:DOCKER FUNCTIONS:
+
+function dfunc() {
+    #Lists Docker Functions Available:
+    local dockerfunc help_docker_func
+    dockerfunc=~/.Dockerfunc
+    help_docker_func=$(grep -A1 -e "function" -e "dfunc line:" < "$dockerfunc"| sed 's/dfunc line://g' | sed 's/#//g' |grep -v "dfunc: ignore line"); #dfunc: ignore line
+    echo -e "$help_docker_func" #dfunc: ignore line
+    echo -e "\033[0m"
+}
+
+function dcleanup_d_img() {
+    #Cleanup dangling images,
+    #volumes, etc.
+    docker rmi "$(docker images -a -f dangling=true)" 2>/dev/null
+}
+
+function dcleanall_cont() {
+    #For Deleting all containers
+    local containers
+    containers=($(docker ps -aq 2>/dev/null))
+    echo "${containers[*]}"
+    docker rm -v "${containers[*]}" 2>/dev/null
+}
+
+function dstop() {
+    #Stop running containers
+    local containers
+    containers=($(docker ps | awk -F' ' '{print $NF}'))
+    echo "Running container ""${containers[*]}"
+    echo "Skipping container ""${MY_CONTAINERS[*]}"
+    for i in "${containers[@]}"; do
+        containsElement "$i" "${MY_CONTAINERS[@]}"
+        if [ "$?" == 1 ]; then
+            docker stop "$i" 2>/dev/null;
+        fi
+        done
+}
+
+function dcleanupc() {
+    #For Deleting selected containers by name
+    local containers
+    dstop
+    dcleanup_d_img
+    containers=($(docker ps -a | awk -F' ' '{print $NF}'))
+    echo "container ""${containers[*]}"
+    echo "Skipping container ""${MY_CONTAINERS[*]}"
+    for i in "${containers[@]}"; do
+        containsElement "$i" "${MY_CONTAINERS[@]}"
+        if [ "$?" == 1 ]; then
+            docker rm -v "$i" 2>/dev/null;
+        fi
+        done
+}
+
+function dip() {
+    #Get ip for running containers:
+    local container containers ip
+    if [ -z "$1" ]
+    then
+        containers=($(docker ps | awk -F' ' '{print $NF}'))
+        for i in "${containers[@]}"; do
+            if [ "$i" != "NAMES" ]; then
+            ip=$(docker inspect -f '{{.Name}} - {{.NetworkSettings.IPAddress }}' "$i")
+            echo "$i" "$ip"
+            fi
+        done
+    else
+        container="$1"
+        ip=$(docker inspect -f '{{.Name}} - {{.NetworkSettings.IPAddress }}' "$container")
+        echo "$container" "$ip"
+    fi
+}
+
+function dinspect() {
+    # Provides docker inspect with ncurses WIP
+    local containers container
+    if [ -z "$1" ]
+    then
+        echo "No container specified"
+    else
+        container="$1"
+        docker inspect "$container" 2>/dev/null
+        main container
+    fi
+}
+
+#\033[0;32m dfunc line:  RUN FUNCTIONS:
+
+function firefox() {
+    docker run -it --rm --name firefox -e DISPLAY="$DISPLAY" -v /tmp/.X11-unix:/tmp/.X11-unix --device /dev/snd -v /dev/shm:/dev/shm navinds25/firefox:v1
+}
+
+function pulseaudio_jess() {
+    docker run -it --rm -v /etc/localtime:/etc/localtime:ro --device /dev/snd --name pulseaudio -p 4713:4713 -v /var/run/dbus:/var/run/dbus \
+ -v /etc/machine-id:/etc/machine-id --name pulseaudio pulseaudio
+}
+
+function atom_jess() {
+    docker run --rm -v /tmp/.X11-unix:/tmp/.X11-unix -e DISPLAY="$DISPLAY" jess-atom
+}
+
+function tor() {
+    # This starts (dperson) tor on docker [name=dptor]. -no portforwarding.
+    docker run -d --name=dptor docker.io/dperson/torproxy
+    dip dptor
+}
