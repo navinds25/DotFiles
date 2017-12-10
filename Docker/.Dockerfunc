@@ -1,6 +1,6 @@
 #!/bin/bash
 
-MY_CONTAINERS=(NAMES)
+MY_CONTAINERS=(NAMES, bot, es)
 
 #HELPER FUNCTIONS:
 
@@ -34,10 +34,10 @@ function dfunc() {
     echo -e "\033[0m"
 }
 
-function dcleanup_d_img() {
+function dcleanup_img_dang() {
     #Cleanup dangling images,
     #volumes, etc.
-    docker rmi "$(docker images -a -f dangling=true)" 2>/dev/null
+    docker rmi $(docker images -aq -f dangling=true)
 }
 
 function dcleanall_cont() {
@@ -63,10 +63,10 @@ function dstop() {
 }
 
 function dcleanupc() {
-    #For Deleting selected containers by name
+    #For Deleting selected containers by name & dangling images
     local containers
     dstop
-    dcleanup_d_img
+    dcleanup_img_dang
     containers=($(docker ps -a | awk -F' ' '{print $NF}'))
     echo "container ""${containers[*]}"
     echo "Skipping container ""${MY_CONTAINERS[*]}"
@@ -113,7 +113,11 @@ function dinspect() {
 #\033[0;32m dfunc line:  RUN FUNCTIONS:
 
 function firefox() {
-    docker run -it --rm --name firefox -e DISPLAY="$DISPLAY" -v /tmp/.X11-unix:/tmp/.X11-unix --device /dev/snd -v /dev/shm:/dev/shm navinds25/firefox:v1
+    docker run -it --rm --name firefox -e DISPLAY="$DISPLAY" -v /tmp/.X11-unix:/tmp/.X11-unix -v /dev/shm:/dev/shm navinds25/firefox:v1
+}
+
+function fq() {
+    docker run -it -u 0 --rm --name fq -e DISPLAY="$DISPLAY" -v /tmp/.X11-unix:/tmp/.X11-unix -v /dev/shm:/dev/shm fq
 }
 
 function pulseaudio_jess() {
@@ -129,4 +133,24 @@ function tor() {
     # This starts (dperson) tor on docker [name=dptor]. -no portforwarding.
     docker run -d --name=dptor docker.io/dperson/torproxy
     dip dptor
+}
+
+function bot() {
+    # This starts hangouts bot
+    docker run -it --name bot --restart always bot_image2
+}
+
+function rbot() {
+    # Restarts bot
+    docker restart bot
+}
+
+function dtorrent() {
+    # Starts jpillora/cloud-torrent image for downloading torrents
+    docker run -it --name torrent -v /var/docker/cloud-torrent/downloads:/downloads jpillora/cloud-torrent
+}
+
+function xbmc-server() {
+    # Starts xbmc server from jonase/docker-xbmc-server
+    docker run -it --name xbmc-server --net=host -v /var/docker/xbmc-server/kodi-server/share/kodi/portable_data:/opt/kodi-server/share/kodi/portable_data jonase/docker-xbmc-server
 }
