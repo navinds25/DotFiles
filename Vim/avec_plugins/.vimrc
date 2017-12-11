@@ -1,7 +1,10 @@
-filetype plugin indent on
-" Vundle
 set nocompatible
-filetype off
+syntax enable
+filetype plugin on
+set number
+set path+=**
+
+" Vundle
 set rtp+=~/.vim/bundle/Vundle.vim
 call vundle#begin()
 
@@ -22,8 +25,6 @@ Plugin 'tmux-plugins/vim-tmux-focus-events'
 Plugin 'docker/docker' , {'rtp': '/contrib/syntax/vim/'}
 
 call vundle#end()
-
-filetype plugin indent on
 
 let g:ycm_python_binary_path = 'python'
 

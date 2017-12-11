@@ -2,7 +2,12 @@
 
 This folder contains configs for the vim editor. It has nothing whatsoever to do with the cleaning product.(https://www.hul.co.in/brands/our-brands/vim.html)
 
-# Steps:
+
+# Steps for vim without plugins(sans_plugins):
+cp .vimrc to ~/
+
+
+# Steps for vim with plugins(avec_plugins):
 
 cp .vimrc to ~/
 
