@@ -23,6 +23,7 @@ Plugin 'artur-shaik/vim-javacomplete2'
 Plugin 'tmux-plugins/vim-tmux'
 Plugin 'tmux-plugins/vim-tmux-focus-events'
 Plugin 'docker/docker' , {'rtp': '/contrib/syntax/vim/'}
+Plugin 'elixir-editors/vim-elixir'
 
 call vundle#end()
 
