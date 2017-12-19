@@ -1,6 +1,6 @@
 #!/bin/bash
 
-MY_CONTAINERS=(NAMES, bot, es)
+MY_CONTAINERS=(NAMES bot gogs)
 
 #HELPER FUNCTIONS:
 
@@ -79,7 +79,7 @@ function dcleanupc() {
 }
 
 function dip() {
-    #Get ip and ports for running containers. Takes optional argument container name.
+    #Get ip for running containers:
     local container containers ip
     if [ -z "$1" ]
     then
@@ -87,15 +87,13 @@ function dip() {
         for i in "${containers[@]}"; do
             if [ "$i" != "NAMES" ]; then
             ip=$(docker inspect -f '{{.Name}} - {{.NetworkSettings.IPAddress }}' "$i")
-            ports=$(docker inspect -f '{{.Name}} - {{.NetworkSettings.Ports}}' "$i")
-            echo "$i" "$ip" ":" "$ports"
+            echo "$i" "$ip"
             fi
         done
     else
         container="$1"
         ip=$(docker inspect -f '{{.Name}} - {{.NetworkSettings.IPAddress }}' "$container")
-        ports=$(docker inspect -f '{{.Name}} - {{.NetworkSettings.Ports}}' "$i")
-        echo "$container" "$ip" ":" "$ports"
+        echo "$container" "$ip"
     fi
 }
 
@@ -109,6 +107,18 @@ function dinspect() {
         container="$1"
         docker inspect "$container" 2>/dev/null
         main container
+    fi
+}
+
+function dc_trace_cmd() {
+    #Gives the Dockerfile CMD param from the docker image.
+    local parent=`docker inspect -f '{{ .Parent }}' $1` 2>/dev/null
+    declare -i level=$2
+    echo ${level}: `docker inspect -f '{{ .ContainerConfig.Cmd }}' $1 2>/dev/null`
+    level=level+1
+    if [ "${parent}" != "" ]; then
+      echo ${level}: $parent 
+      dc_trace_cmd $parent $level
     fi
 }
 
@@ -131,9 +141,9 @@ function atom_jess() {
     docker run --rm -v /tmp/.X11-unix:/tmp/.X11-unix -e DISPLAY="$DISPLAY" jess-atom
 }
 
-function dtor() {
+function tor() {
     # This starts (dperson) tor on docker [name=dptor]. -no portforwarding.
-    docker run -d --name=dptor dperson/torproxy
+    docker run -d --name=dptor docker.io/dperson/torproxy
     dip dptor
 }
 
@@ -157,7 +167,10 @@ function xbmc-server() {
     docker run -it --name xbmc-server --net=host -v /var/docker/xbmc-server/kodi-server/share/kodi/portable_data:/opt/kodi-server/share/kodi/portable_data jonase/docker-xbmc-server
 }
 
-function vscode-node-dev() {
-    # Starts vscode on a docker container for nodejs development
-    docker run -d -v /tmp/.X11-unix:/tmp/.X11-unix -e DISPLAY="$DISPLAY" --device /dev/dri --name vscode-node vscode-node-dev
+function es() {
+    # Starts elasticsearch image
+    docker run -d --name es -h elasticsearch -m 4g elasticsearch
+    sleep 30
+    docker run -d --link es --name kibana -h kibana kibana
 }
+
