@@ -1,3 +1,9 @@
+function p() {
+        echo $PATH
+}
+
+# Brew
+
 function unbrew() {
         PATH=$(echo $PATH | sed -e 's;/home/linuxbrew/.linuxbrew/bin:/home/linuxbrew/.linuxbrew/sbin:;;g')
 	echo "Removed brew from PATH"
@@ -9,10 +15,43 @@ function setbrew() {
 	echo "Added brew to PATH"
         echo $PATH
 }
-function p() {
-        echo $PATH
+
+# JDK
+
+function jdk() {
+	case "$1" in
+		8)
+			export JAVA_HOME="/opt/jdk/jdk1.8.0_211/"       
+			echo "JAVA_HOME=${JAVA_HOME}"
+			;;
+		graal)
+			export JAVA_HOME="/opt/jdk/graal"
+			echo "JAVA_HOME=${JAVA_HOME}"
+			;;
+		*)
+			echo "enter one of the following options as a parameter:"
+			echo "8"
+			echo "graal"
+			;;
+	esac
 }
 
-function jdk8() {
-        export JAVA_HOME="/opt/jdk/jdk1.8.0_211/"       
+# AWS Credentials
+
+function aws-creds() {
+	case "$1" in
+		e*)
+			unlink ~/.aws
+			ln -s ~/.aws-evive ~/.aws
+			echo "set to use evive AWS account"
+			;;
+		p*)
+			unlink ~/.aws
+			ln -s ~/.aws-personal ~/.aws
+			echo "set to use personal AWS account"
+			;;
+		*)
+			echo "enter either evive or personal as an argument"	
+			;;
+	esac
 }
