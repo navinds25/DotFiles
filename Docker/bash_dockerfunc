@@ -28,7 +28,7 @@ containsElement () {
 function dfunc() {
     #Lists Docker Functions Available:
     local dockerfunc help_docker_func
-    dockerfunc=~/.Dockerfunc
+    dockerfunc=~/Infrastructure/DotFiles/Docker/bash_dockerfunc
     help_docker_func=$(grep -A1 -e "function" -e "dfunc line:" < "$dockerfunc"| sed 's/dfunc line://g' | sed 's/#//g' |grep -v "dfunc: ignore line"); #dfunc: ignore line
     echo -e "$help_docker_func" #dfunc: ignore line
     echo -e "\033[0m"
