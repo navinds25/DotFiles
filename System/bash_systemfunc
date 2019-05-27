@@ -21,7 +21,11 @@ function setbrew() {
 function jdk() {
 	case "$1" in
 		8)
-			export JAVA_HOME="/opt/jdk/jdk1.8.0_211/"       
+			export JAVA_HOME="/opt/jdk/jdk1.8.0_161/"       
+			echo "JAVA_HOME=${JAVA_HOME}"
+			;;
+		11)
+			export JAVA_HOME="/opt/jdk/jdk-11/"
 			echo "JAVA_HOME=${JAVA_HOME}"
 			;;
 		graal)
@@ -30,8 +34,9 @@ function jdk() {
 			;;
 		*)
 			echo "enter one of the following options as a parameter:"
-			echo "8"
-			echo "graal"
+			echo "8 for oracle jdk 8"
+			echo "11 for openjdk 11"
+			echo "graal for graalvm"
 			;;
 	esac
 }
@@ -43,11 +48,21 @@ function aws-creds() {
 		e*)
 			unlink ~/.aws
 			ln -s ~/.aws-evive ~/.aws
+			creds=($(cat ~/.aws-evive/credentials | cut -d '=' -f 2 | sed -r 's;\s+;;g' | tr '\n' ' ' ))
+			export AWS_ACCESS_KEY_ID=${creds[1]}
+			echo "Exporting AWS_ACCESS_KEY_ID=${creds[1]}"
+			export AWS_SECRET_ACCESS_KEY=${creds[2]}
+			echo "Exporting AWS_SECRET_ACCESS_KEY=<redacted>"
 			echo "set to use evive AWS account"
 			;;
 		p*)
 			unlink ~/.aws
 			ln -s ~/.aws-personal ~/.aws
+			creds=($(cat ~/.aws-personal/credentials | cut -d '=' -f 2 | sed -r 's;\s+;;g' | tr '\n' ' ' ))
+			export AWS_ACCESS_KEY_ID=${creds[1]}
+			echo "Exporting AWS_ACCESS_KEY_ID=${creds[1]}"
+			export AWS_SECRET_ACCESS_KEY=${creds[2]}
+			echo "Exporting AWS_SECRET_ACCESS_KEY=<redacted>"
 			echo "set to use personal AWS account"
 			;;
 		*)
@@ -55,3 +70,11 @@ function aws-creds() {
 			;;
 	esac
 }
+
+# Android SDK
+
+export ANDROID_HOME=~/Software/Android/Sdk
+export PATH=$PATH:$ANDROID_HOME/tools
+export PATH=$PATH:$ANDROID_HOME/tools/bin
+#export PATH=$PATH:$ANDROID_HOME/emulator
+#export PATH=$PATH:$ANDROID_HOME/platform-tools
