@@ -2,6 +2,10 @@ function p() {
         echo $PATH
 }
 
+function us_date() {
+	TZ=US/Central date
+}
+
 # Brew
 
 function unbrew() {
@@ -14,6 +18,16 @@ function setbrew() {
         eval $(/home/linuxbrew/.linuxbrew/bin/brew shellenv)
 	echo "Added brew to PATH"
         echo $PATH
+}
+
+function setemscripten() {
+	EMSCRIPTENPATHS=/home/navin/Software/emsdk:/home/navin/Software/emsdk/fastcomp/emscripten:/home/navin/Software/emsdk/node/12.9.1_64bit/bin
+	export PATH=$PATH:${EMSCRIPTENPATHS}
+}
+
+function unemscripten() {
+        PATH=$(echo $PATH | sed -e 's;:/home/navin/Software/emsdk:/home/navin/Software/emsdk/fastcomp/emscripten:/home/navin/Software/emsdk/node/12.9.1_64bit/bin;;g')
+	echo $PATH
 }
 
 # JDK
@@ -67,6 +81,7 @@ function aws-creds() {
 			;;
 		*)
 			echo "enter either evive or personal as an argument"	
+			ls -la .aws
 			;;
 	esac
 }
@@ -78,3 +93,8 @@ export PATH=$PATH:$ANDROID_HOME/tools
 export PATH=$PATH:$ANDROID_HOME/tools/bin
 #export PATH=$PATH:$ANDROID_HOME/emulator
 #export PATH=$PATH:$ANDROID_HOME/platform-tools
+
+# Flatpak
+function octave() {
+	flatpak run org.octave.Octave
+}
