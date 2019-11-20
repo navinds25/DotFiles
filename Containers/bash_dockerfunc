@@ -141,7 +141,7 @@ function atom_jess() {
     docker run --rm -v /tmp/.X11-unix:/tmp/.X11-unix -e DISPLAY="$DISPLAY" jess-atom
 }
 
-function tor() {
+function dtor() {
     # This starts (dperson) tor on docker [name=dptor]. -no portforwarding.
     docker run -d --name=dptor docker.io/dperson/torproxy
     dip dptor

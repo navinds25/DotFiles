@@ -1,0 +1,3 @@
+# aliases and functions for kubernetes
+
+alias k='kubectl'

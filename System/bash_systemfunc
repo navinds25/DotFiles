@@ -86,6 +86,23 @@ function aws-creds() {
 	esac
 }
 
+function rack-creds() {
+	case "$1" in
+		prod*)
+			unlink ~/.rack
+			ln -s ~/.rack-prod ~/.rack
+			;;
+		ord*)
+			unlink ~/.rack
+			ln -s ~/.rack-ord ~/.rack
+			;;
+		g*)
+			unlink ~/.rack
+			ln -s ~/.rack-g ~/.rack
+			;;
+	esac
+}
+
 # Android SDK
 
 export ANDROID_HOME=~/Software/Android/Sdk
