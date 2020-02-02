@@ -88,18 +88,28 @@ function aws-creds() {
 
 function rack-creds() {
 	case "$1" in
-		prod*)
+		p*v3)
+			unlink ~/.rack
+			ln -s ~/.rack-prodv3 ~/.rack
+			echo $(ls -la ~/.rack)
+			;;
+		p*)
 			unlink ~/.rack
 			ln -s ~/.rack-prod ~/.rack
+			echo $(ls -la ~/.rack)
 			;;
-		ord*)
+		u*)
 			unlink ~/.rack
 			ln -s ~/.rack-ord ~/.rack
+			echo $(ls -la ~/.rack)
 			;;
 		g*)
 			unlink ~/.rack
 			ln -s ~/.rack-g ~/.rack
+			echo $(ls -la ~/.rack)
 			;;
+		*)
+			echo "didn't understand you request"
 	esac
 }
 

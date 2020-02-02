@@ -143,7 +143,7 @@ function atom_jess() {
 
 function dtor() {
     # This starts (dperson) tor on docker [name=dptor]. -no portforwarding.
-    docker run -d --name=dptor docker.io/dperson/torproxy
+    docker run --rm-d --name=dptor docker.io/dperson/torproxy
     dip dptor
 }
 
