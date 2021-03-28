@@ -20,6 +20,11 @@ function setbrew() {
         echo $PATH
 }
 
+function setgo() {
+	export PATH=$PATH:/usr/local/go/bin
+	echo $PATH
+}
+
 function setemscripten() {
 	EMSCRIPTENPATHS=/home/navin/Software/emsdk:/home/navin/Software/emsdk/fastcomp/emscripten:/home/navin/Software/emsdk/node/12.9.1_64bit/bin
 	export PATH=$PATH:${EMSCRIPTENPATHS}
@@ -28,6 +33,24 @@ function setemscripten() {
 function unemscripten() {
         PATH=$(echo $PATH | sed -e 's;:/home/navin/Software/emsdk:/home/navin/Software/emsdk/fastcomp/emscripten:/home/navin/Software/emsdk/node/12.9.1_64bit/bin;;g')
 	echo $PATH
+}
+
+function go_install() {
+if [ -z "$1" ]
+        then echo "specify tar downloaded from https://golang.org/ as argument"
+else
+        sudo tar -C /usr/local -xzf "$1"
+fi
+}
+
+function laptop_keyboard_led_toggle() {
+	currentVal="$(sudo cat /sys/class/leds/asus\:\:kbd_backlight/brightness)"
+	#echo "current Value: ${currentVal}" 
+	if [ $currentVal -eq 3 ]
+		then  echo 0 | sudo tee /sys/class/leds/asus\:\:kbd_backlight/brightness
+	else
+		echo 3 | sudo tee /sys/class/leds/asus\:\:kbd_backlight/brightness
+	fi
 }
 
 # JDK
@@ -59,10 +82,10 @@ function jdk() {
 
 function aws-creds() {
 	case "$1" in
-		e*)
+		o*)
 			unlink ~/.aws
-			ln -s ~/.aws-evive ~/.aws
-			creds=($(cat ~/.aws-evive/credentials | cut -d '=' -f 2 | sed -r 's;\s+;;g' | tr '\n' ' ' ))
+			ln -s ~/.aws-xtag-old ~/.aws
+			creds=($(cat ~/.aws-xtag-old/credentials | cut -d '=' -f 2 | sed -r 's;\s+;;g' | tr '\n' ' ' ))
 			export AWS_ACCESS_KEY_ID=${creds[1]}
 			echo "Exporting AWS_ACCESS_KEY_ID=${creds[1]}"
 			export AWS_SECRET_ACCESS_KEY=${creds[2]}
@@ -79,9 +102,44 @@ function aws-creds() {
 			echo "Exporting AWS_SECRET_ACCESS_KEY=<redacted>"
 			echo "set to use personal AWS account"
 			;;
+		x*)
+			unlink ~/.aws
+			ln -s ~/.aws-xtag ~/.aws
+			creds=($(cat ~/.aws-xtag/credentials | cut -d '=' -f 2 | sed -r 's;\s+;;g' | tr '\n' ' ' ))
+			export AWS_ACCESS_KEY_ID=${creds[1]}
+			echo "Exporting AWS_ACCESS_KEY_ID=${creds[1]}"
+			export AWS_SECRET_ACCESS_KEY=${creds[2]}
+			echo "Exporting AWS_SECRET_ACCESS_KEY=<redacted>"
+			echo "set to use personal AWS account"
+			;;
+
 		*)
-			echo "enter either evive or personal as an argument"	
-			ls -la .aws
+			echo "enter one of the following"	
+			echo "old-xtag for old xtag creds"
+			echo "xtag for xtag creds"
+			echo "personal for personal aws account"
+			ls -la ~/.aws
+			;;
+	esac
+}
+
+# SSH Config
+
+function ssh-config() {
+	case "$1" in
+		p*)
+			unlink ~/.ssh/config
+			ln -s ~/.ssh/personal-config ~/.ssh/config
+			echo $(ls -la ~/.ssh/config)
+			;;
+		av*)
+			unlink ~/.ssh/config
+			ln -s ~/AutomataVentures/Xtag/infra/ssh/config ~/.ssh/config
+			echo $(ls -la ~/.ssh/config)
+			;;
+		*)
+			echo "enter either personal or av as argument"
+			ls -la ~/.ssh/config
 			;;
 	esac
 }
@@ -115,11 +173,14 @@ function rack-creds() {
 
 # Android SDK
 
-export ANDROID_HOME=~/Software/Android/Sdk
-export PATH=$PATH:$ANDROID_HOME/tools
-export PATH=$PATH:$ANDROID_HOME/tools/bin
-#export PATH=$PATH:$ANDROID_HOME/emulator
-#export PATH=$PATH:$ANDROID_HOME/platform-tools
+function android_paths() {
+	export ANDROID_HOME=~/Software/Android/Sdk
+	export PATH=$PATH:$ANDROID_HOME/tools
+	export PATH=$PATH:$ANDROID_HOME/tools/bin
+	export PATH=$PATH:$ANDROID_HOME/emulator
+	export PATH=$PATH:$ANDROID_HOME/platform-tools
+	export PATH=$PATH:$ANDROID_HOME/platform-tools/bin
+}
 
 # Flatpak
 function octave() {

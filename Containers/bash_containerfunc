@@ -1,5 +1,6 @@
 #!/bin/bash
 
+CONTAINER_RUNTIME="podman"
 MY_CONTAINERS=(NAMES bot gogs)
 
 #HELPER FUNCTIONS:
@@ -25,10 +26,10 @@ containsElement () {
 
 # \033[0;36m dfunc line:DOCKER FUNCTIONS:
 
-function dfunc() {
+function containerfunc() {
     #Lists Docker Functions Available:
     local dockerfunc help_docker_func
-    dockerfunc=~/Infrastructure/DotFiles/Docker/bash_dockerfunc
+    dockerfunc=~/Infrastructure/DotFiles/Containers/bash_containerfunc
     help_docker_func=$(grep -A1 -e "function" -e "dfunc line:" < "$dockerfunc"| sed 's/dfunc line://g' | sed 's/#//g' |grep -v "dfunc: ignore line"); #dfunc: ignore line
     echo -e "$help_docker_func" #dfunc: ignore line
     echo -e "\033[0m"
@@ -37,27 +38,27 @@ function dfunc() {
 function dcleanup_img_dang() {
     #Cleanup dangling images,
     #volumes, etc.
-    docker rmi $(docker images -aq -f dangling=true)
+    "${CONTAINER_RUNTIME}" rmi $("${CONTAINER_RUNTIME}" images -aq -f dangling=true)
 }
 
 function dcleanall_cont() {
     #For Deleting all containers
     local containers
-    containers=($(docker ps -aq 2>/dev/null))
+    containers=($("${CONTAINER_RUNTIME}" ps -aq 2>/dev/null))
     echo "${containers[*]}"
-    docker rm -v "${containers[*]}" 2>/dev/null
+    "${CONTAINER_RUNTIME}" rm -v "${containers[*]}" 2>/dev/null
 }
 
 function dstop() {
     #Stop running containers
     local containers
-    containers=($(docker ps | awk -F' ' '{print $NF}'))
+    containers=($("${CONTAINER_RUNTIME}" ps | awk -F' ' '{print $NF}'))
     echo "Running container ""${containers[*]}"
     echo "Skipping container ""${MY_CONTAINERS[*]}"
     for i in "${containers[@]}"; do
         containsElement "$i" "${MY_CONTAINERS[@]}"
         if [ "$?" == 1 ]; then
-            docker stop "$i" 2>/dev/null;
+            "${CONTAINER_RUNTIME}" stop "$i" 2>/dev/null;
         fi
         done
 }
@@ -67,13 +68,13 @@ function dcleanupc() {
     local containers
     dstop
     dcleanup_img_dang
-    containers=($(docker ps -a | awk -F' ' '{print $NF}'))
+    containers=($("${CONTAINER_RUNTIME}" ps -a | awk -F' ' '{print $NF}'))
     echo "container ""${containers[*]}"
     echo "Skipping container ""${MY_CONTAINERS[*]}"
     for i in "${containers[@]}"; do
         containsElement "$i" "${MY_CONTAINERS[@]}"
         if [ "$?" == 1 ]; then
-            docker rm -v "$i" 2>/dev/null;
+            "${CONTAINER_RUNTIME}" rm -v "$i" 2>/dev/null;
         fi
         done
 }
@@ -83,38 +84,38 @@ function dip() {
     local container containers ip
     if [ -z "$1" ]
     then
-        containers=($(docker ps | awk -F' ' '{print $NF}'))
+        containers=($("${CONTAINER_RUNTIME}" ps | awk -F' ' '{print $NF}'))
         for i in "${containers[@]}"; do
             if [ "$i" != "NAMES" ]; then
-            ip=$(docker inspect -f '{{.Name}} - {{.NetworkSettings.IPAddress }}' "$i")
+            ip=$("${CONTAINER_RUNTIME}" inspect -f '{{.Name}} - {{.NetworkSettings.IPAddress }}' "$i")
             echo "$i" "$ip"
             fi
         done
     else
         container="$1"
-        ip=$(docker inspect -f '{{.Name}} - {{.NetworkSettings.IPAddress }}' "$container")
+        ip=$("${CONTAINER_RUNTIME}" inspect -f '{{.Name}} - {{.NetworkSettings.IPAddress }}' "$container")
         echo "$container" "$ip"
     fi
 }
 
 function dinspect() {
-    # Provides docker inspect with ncurses WIP
+    # Provides "${CONTAINER_RUNTIME}" inspect with ncurses WIP
     local containers container
     if [ -z "$1" ]
     then
         echo "No container specified"
     else
         container="$1"
-        docker inspect "$container" 2>/dev/null
+        "${CONTAINER_RUNTIME}" inspect "$container" 2>/dev/null
         main container
     fi
 }
 
 function dc_trace_cmd() {
-    #Gives the Dockerfile CMD param from the docker image.
-    local parent=`docker inspect -f '{{ .Parent }}' $1` 2>/dev/null
+    #Gives the Dockerfile CMD param from the "${CONTAINER_RUNTIME}" image.
+    local parent=`"${CONTAINER_RUNTIME}" inspect -f '{{ .Parent }}' $1` 2>/dev/null
     declare -i level=$2
-    echo ${level}: `docker inspect -f '{{ .ContainerConfig.Cmd }}' $1 2>/dev/null`
+    echo ${level}: `"${CONTAINER_RUNTIME}" inspect -f '{{ .ContainerConfig.Cmd }}' $1 2>/dev/null`
     level=level+1
     if [ "${parent}" != "" ]; then
       echo ${level}: $parent 
@@ -124,53 +125,53 @@ function dc_trace_cmd() {
 
 #\033[0;32m dfunc line:  RUN FUNCTIONS:
 
-function firefox() {
-    docker run -it --rm --name firefox -e DISPLAY="$DISPLAY" -v /tmp/.X11-unix:/tmp/.X11-unix -v /dev/shm:/dev/shm navinds25/firefox:v1
+function container_firefox() {
+    "${CONTAINER_RUNTIME}" run -it --rm --name firefox -e DISPLAY="$DISPLAY" -v /tmp/.X11-unix:/tmp/.X11-unix -v /dev/shm:/dev/shm navinds25/firefox:v1
 }
 
 function fq() {
-    docker run -it -u 0 --rm --name fq -e DISPLAY="$DISPLAY" -v /tmp/.X11-unix:/tmp/.X11-unix -v /dev/shm:/dev/shm fq
+    "${CONTAINER_RUNTIME}" run -it -u 0 --rm --name fq -e DISPLAY="$DISPLAY" -v /tmp/.X11-unix:/tmp/.X11-unix -v /dev/shm:/dev/shm fq
 }
 
 function pulseaudio_jess() {
-    docker run -it --rm -v /etc/localtime:/etc/localtime:ro --device /dev/snd --name pulseaudio -p 4713:4713 -v /var/run/dbus:/var/run/dbus \
+    "${CONTAINER_RUNTIME}" run -it --rm -v /etc/localtime:/etc/localtime:ro --device /dev/snd --name pulseaudio -p 4713:4713 -v /var/run/dbus:/var/run/dbus \
  -v /etc/machine-id:/etc/machine-id --name pulseaudio pulseaudio
 }
 
 function atom_jess() {
-    docker run --rm -v /tmp/.X11-unix:/tmp/.X11-unix -e DISPLAY="$DISPLAY" jess-atom
+    "${CONTAINER_RUNTIME}" run --rm -v /tmp/.X11-unix:/tmp/.X11-unix -e DISPLAY="$DISPLAY" jess-atom
 }
 
 function dtor() {
-    # This starts (dperson) tor on docker [name=dptor]. -no portforwarding.
-    docker run --rm-d --name=dptor docker.io/dperson/torproxy
+    # This starts (dperson) tor on "${CONTAINER_RUNTIME}" [name=dptor]. -no portforwarding.
+    "${CONTAINER_RUNTIME}" run --rm-d --name=dptor docker.io/dperson/torproxy
     dip dptor
 }
 
 function bot() {
     # This starts hangouts bot
-    docker run -it --name bot --restart always bot_image2
+    "${CONTAINER_RUNTIME}" run -it --name bot --restart always bot_image2
 }
 
 function rbot() {
     # Restarts bot
-    docker restart bot
+    "${CONTAINER_RUNTIME}" restart bot
 }
 
 function dtorrent() {
     # Starts jpillora/cloud-torrent image for downloading torrents
-    docker run -it --name torrent -v /var/docker/cloud-torrent/downloads:/downloads jpillora/cloud-torrent
+    "${CONTAINER_RUNTIME}" run -it --name torrent -v /var/docker/cloud-torrent/downloads:/downloads jpillora/cloud-torrent
 }
 
 function xbmc-server() {
     # Starts xbmc server from jonase/docker-xbmc-server
-    docker run -it --name xbmc-server --net=host -v /var/docker/xbmc-server/kodi-server/share/kodi/portable_data:/opt/kodi-server/share/kodi/portable_data jonase/docker-xbmc-server
+    "${CONTAINER_RUNTIME}" run -it --name xbmc-server --net=host -v /var/docker/xbmc-server/kodi-server/share/kodi/portable_data:/opt/kodi-server/share/kodi/portable_data jonase/docker-xbmc-server
 }
 
 function es() {
     # Starts elasticsearch image
-    docker run -d --name es -h elasticsearch -m 4g elasticsearch
+    "${CONTAINER_RUNTIME}" run -d --name es -h elasticsearch -m 4g elasticsearch
     sleep 30
-    docker run -d --link es --name kibana -h kibana kibana
+    "${CONTAINER_RUNTIME}" run -d --link es --name kibana -h kibana kibana
 }
 
