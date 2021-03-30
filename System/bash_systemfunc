@@ -6,6 +6,10 @@ function us_date() {
 	TZ=US/Central date
 }
 
+function delete_empty_directories() {
+	find ~/Downloads/ -empty -type d -delete
+}
+
 # Brew
 
 function unbrew() {
@@ -82,16 +86,6 @@ function jdk() {
 
 function aws-creds() {
 	case "$1" in
-		o*)
-			unlink ~/.aws
-			ln -s ~/.aws-xtag-old ~/.aws
-			creds=($(cat ~/.aws-xtag-old/credentials | cut -d '=' -f 2 | sed -r 's;\s+;;g' | tr '\n' ' ' ))
-			export AWS_ACCESS_KEY_ID=${creds[1]}
-			echo "Exporting AWS_ACCESS_KEY_ID=${creds[1]}"
-			export AWS_SECRET_ACCESS_KEY=${creds[2]}
-			echo "Exporting AWS_SECRET_ACCESS_KEY=<redacted>"
-			echo "set to use evive AWS account"
-			;;
 		p*)
 			unlink ~/.aws
 			ln -s ~/.aws-personal ~/.aws
@@ -132,42 +126,10 @@ function ssh-config() {
 			ln -s ~/.ssh/personal-config ~/.ssh/config
 			echo $(ls -la ~/.ssh/config)
 			;;
-		av*)
-			unlink ~/.ssh/config
-			ln -s ~/AutomataVentures/Xtag/infra/ssh/config ~/.ssh/config
-			echo $(ls -la ~/.ssh/config)
-			;;
 		*)
 			echo "enter either personal or av as argument"
 			ls -la ~/.ssh/config
 			;;
-	esac
-}
-
-function rack-creds() {
-	case "$1" in
-		p*v3)
-			unlink ~/.rack
-			ln -s ~/.rack-prodv3 ~/.rack
-			echo $(ls -la ~/.rack)
-			;;
-		p*)
-			unlink ~/.rack
-			ln -s ~/.rack-prod ~/.rack
-			echo $(ls -la ~/.rack)
-			;;
-		u*)
-			unlink ~/.rack
-			ln -s ~/.rack-ord ~/.rack
-			echo $(ls -la ~/.rack)
-			;;
-		g*)
-			unlink ~/.rack
-			ln -s ~/.rack-g ~/.rack
-			echo $(ls -la ~/.rack)
-			;;
-		*)
-			echo "didn't understand you request"
 	esac
 }
 
