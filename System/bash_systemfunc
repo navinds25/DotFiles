@@ -1,3 +1,7 @@
+# PATH
+
+export PATH=$PATH:/home/navin/.local/share/gem/ruby/3.0.0/bin
+
 function p() {
         echo $PATH
 }
@@ -10,7 +14,7 @@ function delete_empty_directories() {
 	find ~/Downloads/ -empty -type d -delete
 }
 
-# Brew
+# PATH on Request
 
 function unbrew() {
         PATH=$(echo $PATH | sed -e 's;/home/linuxbrew/.linuxbrew/bin:/home/linuxbrew/.linuxbrew/sbin:;;g')
@@ -24,10 +28,33 @@ function setbrew() {
         echo $PATH
 }
 
+function pset_rust() {
+	export PATH="$HOME/.cargo/bin:$PATH"
+	case "$1" in
+		nightly)
+			unlink ~/.cargo
+			ln -s ~/.cargo-nightly ~/.cargo
+			;;
+		stable)
+			unlink ~/.cargo
+			ln -s ~/.cargo-stable ~/.cargo
+			;;
+			
+		*)
+			echo "enter one of the following"
+			echo "$ setp_rust nightly"
+			echo "$ setp_rust stable"
+			#echo "$ setp_rust apath #activate path"
+			;;
+	esac
+}
+
 function setgo() {
 	export PATH=$PATH:/usr/local/go/bin
 	echo $PATH
 }
+
+
 
 function setemscripten() {
 	EMSCRIPTENPATHS=/home/navin/Software/emsdk:/home/navin/Software/emsdk/fastcomp/emscripten:/home/navin/Software/emsdk/node/12.9.1_64bit/bin
@@ -96,26 +123,15 @@ function aws-creds() {
 			echo "Exporting AWS_SECRET_ACCESS_KEY=<redacted>"
 			echo "set to use personal AWS account"
 			;;
-		x*)
-			unlink ~/.aws
-			ln -s ~/.aws-xtag ~/.aws
-			creds=($(cat ~/.aws-xtag/credentials | cut -d '=' -f 2 | sed -r 's;\s+;;g' | tr '\n' ' ' ))
-			export AWS_ACCESS_KEY_ID=${creds[1]}
-			echo "Exporting AWS_ACCESS_KEY_ID=${creds[1]}"
-			export AWS_SECRET_ACCESS_KEY=${creds[2]}
-			echo "Exporting AWS_SECRET_ACCESS_KEY=<redacted>"
-			echo "set to use personal AWS account"
-			;;
-
 		*)
 			echo "enter one of the following"	
-			echo "old-xtag for old xtag creds"
-			echo "xtag for xtag creds"
 			echo "personal for personal aws account"
 			ls -la ~/.aws
 			;;
 	esac
 }
+
+
 
 # SSH Config
 
