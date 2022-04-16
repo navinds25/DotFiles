@@ -1,0 +1,12 @@
+
+PATH=${PATH}:~/.bin/:~/go/bin
+export PATH
+
+export JAVA_HOME=/Applications/Android\ Studio.app/Contents/jre/Contents/Home
+
+function n25-delete-git-branches() {
+  # deletes all git branches except master branch
+  git branch -v | grep -v master | awk '{print $1}' | xargs git branch -D
+}
+
+alias vim="nvim"

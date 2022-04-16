@@ -1,5 +1,6 @@
 # PATH
 
+
 export PATH=$PATH:/home/navin/.local/share/gem/ruby/3.0.0/bin
 
 function p() {
@@ -123,9 +124,20 @@ function aws-creds() {
 			echo "Exporting AWS_SECRET_ACCESS_KEY=<redacted>"
 			echo "set to use personal AWS account"
 			;;
+		w*)
+			unlink ~/.aws
+			ln -s ~/.aws-work ~/.aws
+			creds=($(cat ~/.aws-work/credentials | cut -d '=' -f 2 | sed -r 's;\s+;;g' | tr '\n' ' ' ))
+			export AWS_ACCESS_KEY_ID=${creds[1]}
+			echo "Exporting AWS_ACCESS_KEY_ID=${creds[1]}"
+			export AWS_SECRET_ACCESS_KEY=${creds[2]}
+			echo "Exporting AWS_SECRET_ACCESS_KEY=<redacted>"
+			echo "set to use work AWS account"
+			;;
 		*)
 			echo "enter one of the following"	
 			echo "personal for personal aws account"
+			echo "work for work aws account"
 			ls -la ~/.aws
 			;;
 	esac
