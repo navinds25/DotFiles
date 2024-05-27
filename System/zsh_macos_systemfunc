@@ -3,6 +3,7 @@ PATH=${PATH}:~/.bin/:~/go/bin
 export PATH
 
 export JAVA_HOME=/Applications/Android\ Studio.app/Contents/jre/Contents/Home
+export PATH=$PATH:/usr/local/go/bin
 
 function n25-delete-git-branches() {
   # deletes all git branches except master branch
