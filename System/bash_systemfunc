@@ -1,7 +1,8 @@
 # PATH
 
+alias vim='nvim'
 
-export PATH=$PATH:/home/navin/.local/share/gem/ruby/3.0.0/bin
+export PATH=$PATH:/home/$USER/.bin
 
 function p() {
         echo $PATH
@@ -9,6 +10,10 @@ function p() {
 
 function us_date() {
 	TZ=US/Central date
+}
+
+function ist() {
+	TZ=Asia/Kolkata date
 }
 
 function delete_empty_directories() {
